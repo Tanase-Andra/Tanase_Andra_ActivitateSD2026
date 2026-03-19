@@ -87,11 +87,9 @@ void afisareListaMasini(Nod* cap) {
 
 
 
-void adaugaLaInceputInLista(/*lista de masini*/ Masina masinaNoua) {
+void adaugaLaInceputInLista(Masina masinaNoua) {
 	//adauga la inceputul listei o noua masina pe care o primim ca parametru
-  
-
-}
+  }
 
 void* citireListaMasiniDinFisier(const char* numeFisier) {
 	FILE* file = fopen(numeFisier, "r");
@@ -144,14 +142,49 @@ float calculeazaPretMediu(Nod* lista) {
 	}
 }
 
-void stergeMasiniDinSeria(/*lista masini*/ char serieCautata) {
-	//sterge toate masinile din lista care au seria primita ca parametru.
-	//tratati situatia ca masina se afla si pe prima pozitie, si pe ultima pozitie
+void stergeMasiniDinSeria(Nod** lista, char serieCautata) {
+	Nod* curent = *lista;
+    Nod* aux1 = NULL;
+
+while (curent != NULL) {
+	if (curent->info.serie == serieCautata) {
+		Nod* deSters = curent;
+
+		if (aux1 == NULL) {
+		// Primul nod din lista
+			*lista = curent->next;
+		}
+		else {
+		// Interior sau la finalul listei
+			aux1->next = curent->next;
+		}
+
+		curent = curent->next;
+
+		free(deSters->info.model);
+		free(deSters->info.numeSofer);
+		free(deSters);
+	}
+	else {
+		aux1 = curent;
+		curent = curent->next;
+	}
 }
 
-float calculeazaPretulMasinilorUnuiSofer(/*lista masini*/ const char* numeSofer) {
-	//calculeaza pretul tuturor masinilor unui sofer.
-	return 0;
+}
+
+float calculeazaPretulMasinilorUnuiSofer(Nod* lista, const char* numeSofer) {
+	float suma = 0;
+
+     while (lista != NULL) {
+	if (strcmp(lista->info.numeSofer, numeSofer) == 0) {
+		suma += lista->info.pret;
+	}
+	lista = lista->next;
+  }
+  return suma;
+	
+   return 0;
 }
 
 int main() {
@@ -163,7 +196,9 @@ int main() {
 	//afisareListaMasini(lista);
 	float pretMediu = calculeazaPretMediu(lista);
 	printf("\nPretul mediu = %f\n",pretMediu);
-	dezalocareListaMasini(&lista);
+	stergeMasiniDinSeria(&lista, 'A');
+    printf("Pretul masinii soferului Gheorghe: %.2f\n", calculeazaPretulMasinilorUnuiSofer(lista, "Gheorghe"));
+    dezalocareListaMasini(&lista);
 
 	return 0;
 }
